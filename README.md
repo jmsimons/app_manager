@@ -8,20 +8,22 @@
 
 ### examples ###
 
-- Running your app in the AppManager is simple
+#### running your app in the AppManager is simple
 ```
 import ApplicationClass
 from app_manager import AppManager
 
 app = ApplicationClass()
 AppManager(app.run)
+''' Exceptions will be printed to the console '''
 ```
 
-- Alternatively, you can pass in your app's logger so that exceptions appear in your log output
+#### alternatively, you can pass in your app's logger so that exceptions appear in your log output
 ```
 from application_package import ApplicationClass, logger
 from app_manager import AppManager
 
 app = ApplicationClass()
 AppManager(app.run, logger = logger)
+''' Exceptions will be printed to the console and logged with the supplied logger'''
 ```
