@@ -1,5 +1,5 @@
 import multiprocessing as mp
-import sys, traceback
+import traceback
 
 
 class AppManager:
