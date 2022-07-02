@@ -1,4 +1,4 @@
-import unittest, time, logging
+import unittest, time, logging, os
 from multiprocessing import Manager, Value
 from app_manager import AppManager
 
@@ -8,17 +8,15 @@ class SampleApp:
 
     def __init__(self):
         self.running = Value('i', 0)
+        logging.basicConfig(filename = "sample_app.log")
         self.logger = logging.getLogger()
-        # TODO: Set up logger with file object to read from the test class
-        
-    def get_run_flag(self):
-        return self.running
     
     def run(self, proc_args):
+        ''' runs in child process, sets status values, and throws exception '''
         run_tally, running = proc_args
         running.value = 1
         print("SampleApp sleeping for <1 second...")
-        time.sleep(.99)
+        time.sleep(.99) # to give the test time to read running flag
         run_tally.value += 1
         running.value = 0
         # throw exception #
@@ -30,12 +28,20 @@ class TestAppManager(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
+        if os.path.exists("sample_app.log"):
+            os.remove("sample_app.log")
         self.sample_app = SampleApp()
+    
+    @classmethod
+    def tearDownClass(self):
+        pass
     
     @classmethod
     def setUp(self):
         self.run_tally = Value('i', 0)
-        self.app_man = AppManager(self.sample_app.run, args = [self.run_tally, self.sample_app.get_run_flag()])
+        self.app_man = AppManager(self.sample_app.run,
+                                  args = [self.run_tally, self.sample_app.running],
+                                  logger = self.sample_app.logger)
     
     @classmethod
     def tearDown(self):
@@ -44,16 +50,14 @@ class TestAppManager(unittest.TestCase):
 
     def test_start(self):
         self.app_man.start()
-        time.sleep(.25)
+        time.sleep(.1)
         self.assertEqual(self.sample_app.running.value, 1)
-        time.sleep(3)
-        self.assertGreater(self.run_tally.value, 1)
 
     def test_stop(self):
         self.app_man.start()
-        time.sleep(.25)
+        time.sleep(.1)
         self.app_man.stop()
-        time.sleep(.25)
+        time.sleep(.1)
         self.assertEqual(self.app_man.process.is_alive(), False)
 
     def test_run_limit(self):
@@ -63,7 +67,10 @@ class TestAppManager(unittest.TestCase):
         self.assertEqual(self.run_tally.value, 5)
 
     def test_logging(self):
-        pass
+        self.app_man.start()
+        time.sleep(1)
+        log_file = open("sample_app.log").read()
+        self.assertGreater(len(log_file), 0)
 
 if __name__ == "__main__":
     unittest.main()

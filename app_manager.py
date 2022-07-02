@@ -4,7 +4,7 @@ import traceback, sys
 
 class AppManager:
     
-    ''' Runs python application in new process, safely catches exceptions and re-runs self.run_func '''
+    ''' Safely runs python application in child process '''
 
     def __init__(self, run_func, args = [], logger = None, run_limit = None):
         self.run_func = run_func
@@ -14,9 +14,11 @@ class AppManager:
         else:
             self.run_limit = None
         self.process = mp.Process(target = self.run_loop, args = (args, ))
-        # self.start() # uncomment to start automatically after init
+        # # uncomment to start automatically after init #
+        # self.start()
     
     def run_loop(self, proc_args):
+        ''' runs in child process, contunially runs run_func, safely catches exceptions '''
         while True:
             # handle run_limit #
             if self.run_limit == 0:
@@ -25,7 +27,7 @@ class AppManager:
             elif self.run_limit > 0:
                 self.run_limit -= 1
 
-            # 
+            # run application #
             try:
                 if len(proc_args):
                     self.run_func(proc_args)
@@ -39,11 +41,19 @@ class AppManager:
                     self.logger.exception(message)
 
     def start(self, run_limit = None):
+        ''' starts the child process '''
         if run_limit and int(run_limit) > 0:
             self.run_limit = int(run_limit)
-        print("Starting application in AppManager")
+        message = "Starting application in AppManager"
+        print(message)
+        if self.logger:
+            self.logger.info(message)
         self.process.start()
 
     def stop(self):
-        print("Stopping application")
+        ''' stops the child process '''
+        message = "Stopping application"
+        print(message)
+        if self.logger:
+            self.logger.info(message)
         self.process.terminate()

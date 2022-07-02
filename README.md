@@ -14,7 +14,7 @@ import ApplicationClass
 from app_manager import AppManager
 
 app = ApplicationClass()
-AppManager(app.run)
+AppManager(app.run, run_limit = None) # set run_limit to positive integer to run application at most n times
 ''' Exceptions will be printed to the console '''
 ```
 
@@ -38,5 +38,4 @@ app = AppMainClass()
 comp = BackgroundAppClass()
 AppManager(app.run, logger = main_logger)
 AppManager(comp.run, logger = bg_logger)
-
 ```
