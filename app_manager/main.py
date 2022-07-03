@@ -12,7 +12,7 @@ class AppManager:
         if run_limit and int(run_limit) > 0:
             self.run_limit = int(run_limit)
         else:
-            self.run_limit = None
+            self.run_limit = -1
         self.process = mp.Process(target = self.run_loop, args = (args, ))
         # # uncomment to start automatically after init #
         # self.start()

@@ -8,7 +8,7 @@ class SampleApp:
 
     def __init__(self):
         self.running = Value('i', 0)
-        logging.basicConfig(filename = "sample_app.log")
+        logging.basicConfig(filename = "sample_app.log", level = logging.INFO)
         self.logger = logging.getLogger()
     
     def run(self, proc_args):
@@ -28,20 +28,20 @@ class TestAppManager(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        if os.path.exists("sample_app.log"):
-            os.remove("sample_app.log")
         self.sample_app = SampleApp()
     
     @classmethod
     def tearDownClass(self):
-        pass
+        if os.path.exists("sample_app.log"):
+            os.remove("sample_app.log")
     
     @classmethod
     def setUp(self):
         self.run_tally = Value('i', 0)
-        self.app_man = AppManager(self.sample_app.run,
-                                  args = [self.run_tally, self.sample_app.running],
-                                  logger = self.sample_app.logger)
+        self.app_man = AppManager(
+            self.sample_app.run,
+            args = [self.run_tally, self.sample_app.running],
+            logger = self.sample_app.logger)
     
     @classmethod
     def tearDown(self):
@@ -50,12 +50,12 @@ class TestAppManager(unittest.TestCase):
 
     def test_start(self):
         self.app_man.start()
-        time.sleep(.1)
+        time.sleep(.5)
         self.assertEqual(self.sample_app.running.value, 1)
 
     def test_stop(self):
         self.app_man.start()
-        time.sleep(.1)
+        time.sleep(.5)
         self.app_man.stop()
         time.sleep(.1)
         self.assertEqual(self.app_man.process.is_alive(), False)
@@ -68,6 +68,8 @@ class TestAppManager(unittest.TestCase):
 
     def test_logging(self):
         self.app_man.start()
-        time.sleep(1)
+        time.sleep(.1)
+        self.app_man.stop()
+        time.sleep(.1)
         log_file = open("sample_app.log").read()
         self.assertGreater(len(log_file), 0)

@@ -1,1 +1,1 @@
-from app_manager.app_manager import AppManager
+from app_manager.main import AppManager
