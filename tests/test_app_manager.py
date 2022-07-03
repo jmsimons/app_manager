@@ -1,6 +1,6 @@
 import unittest, time, logging, os
 from multiprocessing import Manager, Value
-from app_manager import AppManager
+from app_manager.main import AppManager
 
 
 class SampleApp:
@@ -63,7 +63,7 @@ class TestAppManager(unittest.TestCase):
     def test_run_limit(self):
         self.run_count = 0
         self.app_man.start(run_limit = 5)
-        time.sleep(7) # long enough for the application to have run more than 5 times
+        time.sleep(7) # long enough for the application to run more than 5 times
         self.assertEqual(self.run_tally.value, 5)
 
     def test_logging(self):
@@ -71,6 +71,3 @@ class TestAppManager(unittest.TestCase):
         time.sleep(1)
         log_file = open("sample_app.log").read()
         self.assertGreater(len(log_file), 0)
-
-if __name__ == "__main__":
-    unittest.main()
